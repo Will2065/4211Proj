@@ -3,7 +3,7 @@ import numpy as np
 
 def initialize(df):
     """
-     transform some predictors to categorical, and then get dummies predictors, and then scale the predictors, and then split the x and y  
+    transform some predictors to categorical; then split the x and y; and then get dummies predictors;  and then scale the predictors
      before conducting this function, you should generate the analyzed group, and drop the labels manually
     """
     df.brandID=df.brandID.astype('category')
