@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 def initialize(df):
     """
@@ -61,6 +62,85 @@ def CV4LeastSq_lr(df):
         MSE.append(mean_squared_error(lm.predict(x_test),y_test))
     return np.mean(MSE)
 
+def ridge_MSE(x_train_stan, x_test_stan,y_train,y_test,alpha):
+    """
+    compute the MSE_test
+    """
+    from sklearn.linear_model import Ridge
+    from sklearn.metrics import mean_squared_error
+    ridge=Ridge(alpha=alpha)
+    ridge.fit(x_train_stan,y_train)
+    MSE_test=mean_squared_error(ridge.predict(x_test_stan),y_test)
+    return MSE_test
 
+def CV4Ridge_lr(df,alpha):
+    """
+    conducting 10 folds cross validation based on Ridge Linear Regression, and compute the average MSE
+    """
+    from sklearn.metrics import mean_squared_error
+    from sklearn.model_selection import KFold
+    kf=KFold(n_splits=10)
+    MSE=[]
+    x_stan,y=initialize(df)
+    for train_index, test_index in kf.split(x_stan):
+        x_train_stan= x_stan.iloc[train_index]
+        x_test_stan=x_stan.iloc[test_index]
+        y_train=y.iloc[train_index]
+        y_test=y.iloc[test_index]
+    MSE.append(ridge_MSE(x_train_stan, x_test_stan,y_train,y_test,alpha))
+    return np.mean(MSE)
+
+def para_plot(points,df,MinPara,MaxPara):
+    """
+    plot the MSE line graph to help to determine the best choice of parameter
+    """
+    p=points
+    MSEs=[]
+    A=np.linspace(MinPara,MaxPara,p)
+    for i in A:
+        MSEs.append(CV4Ridge_lr(df,i))
+    plt.plot(A,MSEs)
+    plt.show()
+    return
+    
+def train_test(k, i):
+    """
+    from hzt
+    """
+    train = pd.read_csv('Data-train345.csv', index_col = 0)
+    train1 = train.loc[train['Labels_' + str(k)] == i]
+    train2 = train1.drop(['Labels_3', 'Labels_4', 'Labels_5'], axis = 1)
+    X_train, y_train = tk.initialize(train2)
+    return X_train, y_train
+
+def RandomForest_MSE(x_train_stan, x_test_stan, y_train, y_test):
+    """
+    compute the MSE of a random Forest model
+    """
+    from sklearn.ensemble import RandomForestRegressor
+    from sklearn.metrics import mean_squared_error
+    rf=RandomForestRegressor(n_estimators=1000, max_features='sqrt',random_state=25)
+    rf.fit(x_train_stan, y_train)
+    MSE_test=mean_squared_error(rf.predict(x_test_stan),y_test)
+    return MSE_test
+
+def CV4RandomForest(df):
+    """
+    compute the cross validation mse for random forest model
+    input dataframe should be reprocessed group data
+    """
+    from sklearn.metrics import mean_squared_error
+    from sklearn.model_selection import KFold
+    kf=KFold(n_splits=10)
+    MSE=[]
+    x_stan,y=initialize(df)
+    for train_index, test_index in kf.split(x_stan):
+        x_train= x_stan.iloc[train_index]
+        x_test=x_stan.iloc[test_index]
+        y_train=y.iloc[train_index]
+        y_test=y.iloc[test_index]
+        MSE_test=RandomForest_MSE(x_train, x_test, y_train, y_test)
+        MSE.append(MSE_test)
+    return np.mean(MSE)
 
 
