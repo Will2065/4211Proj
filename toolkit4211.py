@@ -103,15 +103,6 @@ def para_plot(points,df,MinPara,MaxPara):
     plt.show()
     return
     
-def train_test(k, i):
-    """
-    from hzt
-    """
-    train = pd.read_csv('Data-train345.csv', index_col = 0)
-    train1 = train.loc[train['Labels_' + str(k)] == i]
-    train2 = train1.drop(['Labels_3', 'Labels_4', 'Labels_5'], axis = 1)
-    X_train, y_train = tk.initialize(train2)
-    return X_train, y_train
 
 def RandomForest_MSE(x_train_stan, x_test_stan, y_train, y_test):
     """
@@ -143,4 +134,38 @@ def CV4RandomForest(df):
         MSE.append(MSE_test)
     return np.mean(MSE)
 
+def train_test(k, i):
+    """
+    k means the label number(how many groups you want), i means the ith label in labels k(which group)
+    the output is standardized group data
+    """
+    train = pd.read_csv('Data-train345.csv', index_col = 0)
+    train1 = train.loc[train['Labels_' + str(k)] == i]
+    train2 = train1.drop(['Labels_3', 'Labels_4', 'Labels_5'], axis = 1)
+    X_train, y_train = tk.initialize(train2)
+    return x_stan, y
 
+def SelfPCA(n1, x_stan):
+    """
+    input: n_components: the number of parameters you want after pca
+    """
+    from sklearn.decomposition import PCA
+    pca = PCA(n_components=n1)
+    pca.fit(x_stan)
+    #print(pca.explained_variance_ratio_)  # This is the Variance of different 特征值，越好。
+    #print(pca.explained_variance_)
+    X_new = pca.transform(x_stan)
+    X = pd.DataFrame(X_new)
+    return X
+
+def PCA(k, i, n):
+    """
+    previous name: dataProcess()
+    inputs:
+    k: how many groups you want
+    i: which group you want
+    n: how many predictors you neeed after pca
+    """
+    X_train, y_train = train_test(k, i)
+    X = SelfPCA(n, X_train)
+    return X
