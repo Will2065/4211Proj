@@ -137,12 +137,12 @@ def CV4RandomForest(df):
 def train_test(k, i):
     """
     k means the label number(how many groups you want), i means the ith label in labels k(which group)
-    the output is standardized group data
+    the output is standardized group x_stan and y
     """
     train = pd.read_csv('Data-train345.csv', index_col = 0)
     train1 = train.loc[train['Labels_' + str(k)] == i]
     train2 = train1.drop(['Labels_3', 'Labels_4', 'Labels_5'], axis = 1)
-    X_train, y_train = tk.initialize(train2)
+    x_stan, y = initialize(train2)
     return x_stan, y
 
 def SelfPCA(n1, x_stan):
@@ -169,3 +169,21 @@ def PCA(k, i, n):
     X_train, y_train = train_test(k, i)
     X = SelfPCA(n, X_train)
     return X
+
+def choose(k, i):
+    """
+    k means the label number(how many groups you want), i means the ith label in labels k(which group)
+    the output is standardized group data
+    """
+    train = pd.read_csv('Data-train345.csv', index_col = 0)
+    train1 = train.loc[train['Labels_' + str(k)] == i]
+    train2 = train1.drop(['Labels_3', 'Labels_4', 'Labels_5'], axis = 1)
+    return train2
+
+def ungroup():
+    """
+    choose all the data without grouping, the output is unstandardized data
+    """
+    train = pd.read_csv('Data-train345.csv', index_col = 0)
+    train2 = train.drop(['Labels_3', 'Labels_4', 'Labels_5'], axis = 1)
+    return train2
